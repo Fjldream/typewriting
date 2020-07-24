@@ -148,6 +148,25 @@
             color: rgb(23, 103, 114);
             text-shadow: 2px 2px 5px rgb(133, 179, 185);
         }
+
+        .set-rebtn {
+            margin-left: 100px;
+            width: 100px;
+            height: 30px;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 10px;
+            line-height: 30px;
+            color: rgb(29, 28, 28);
+            text-shadow: none;
+            background-color: palevioletred;
+            border-radius: 20px;
+            transition: background-color 0.8s ease-out;
+        }
+
+        .set-rebtn:hover {
+            background-color: rgb(214, 212, 212);
+        }
     </style>
 </head>
 
@@ -173,7 +192,11 @@
         <img src="img/settings.png" alt="">
     </div>
     <div class="set">
-        <div class="set-context">游戏设置</div>
+        <div class="set-context">游戏设置
+            <div class="set-rebtn">
+                重新开始
+            </div>
+        </div>
     </div>
     <script>
         var letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T",
@@ -189,6 +212,7 @@
         var score = document.querySelector(".bottom div:nth-child(2)");
         var setting = document.querySelector(".setimg img");
         var set = document.querySelector(".set");
+        var setReBtn = document.querySelector(".set-rebtn");
         //console.log(setting);
         //creat函数
         //生成数组的个数
@@ -197,7 +221,7 @@
         //speedTime 下落时间
         //speed下落的位移
         var speed = 1;
-        var speedTime = 10;
+        var speedTime = 30;
 
         function creat(num = 4) {
             //传入参数的为产生字母的个数
@@ -266,6 +290,7 @@
             }
             if (blood.innerHTML == 0) {
                 clearInterval(t);
+                clearInterval(re);
                 overgame.style.display = "block";
                 reStartGame();
 
@@ -294,6 +319,7 @@
 
                     if (ev.keyCode == 32 && t) {
                         clearInterval(t);
+                        clearInterval(re);
                         pauseBtn.src = "img/pause.png";
                         pauseBtn.pauseVal = 0;
                         //console.log(pauseBtn.pauseVal);
@@ -302,23 +328,29 @@
                 }
             }
         }
+        //刷新的字母
+        var re;
 
+        function refreshLet() {
+            creatOne();
+        }
         //暂停按钮
         function pauseBtnFn() {
             pauseBtn.onclick = function () {
                 console.log(this.pauseVal);
                 var flag = this.pauseVal;
-
                 if (flag == 0) {
                     this.src = "img/start.png";
                     this.pauseVal = 1;
                     t = setInterval(runLetter, speedTime);
+                    re = setInterval(refreshLet, 4000);
                     keyDown();
                 }
                 if (flag == 1) {
                     this.src = "img/pause.png";
                     this.pauseVal = 0;
                     clearInterval(t);
+                    clearInterval(re);
                     document.onkeydown = null;
                 }
             }
@@ -335,6 +367,7 @@
                     pauseBtn.src = "img/pause.png";
                     pauseBtn.pauseVal = 0;
                     clearInterval(t);
+                    clearInterval(re);
                     document.onkeydown = null;
                 } else {
                     setting.setVal = 0;
@@ -342,32 +375,51 @@
                     pauseBtn.src = "img/start.png";
                     pauseBtn.pauseVal = 1;
                     t = setInterval(runLetter, speedTime);
+                    re = setInterval(refreshLet, 4000);
                     keyDown();
                 }
-
+                SetReBtn();
             }
         }
-
+        //设置游戏的重新游戏
+        function SetReBtn() {
+            setReBtn.onclick = function () {
+                restart();
+                setting.setVal = 0;
+                set.style.display = "none";
+                pauseBtn.src = "img/start.png";
+                pauseBtn.pauseVal = 1;
+                t = setInterval(runLetter, speedTime);
+                re = setInterval(refreshLet, 4000);
+                keyDown();
+            }
+        }
         //开始游戏
         function startGame() {
             creat(num);
             t = setInterval(runLetter, speedTime);
+            re = setInterval(refreshLet, 4000);
             keyDown();
             pauseBtnFn();
             setGame();
+
         }
         startGame();
         //结束游戏 重新开始按钮
+        function restart() {
+            current.splice(0, current.length);
+            for (var i = 0; i < divs.length; i++) {
+                document.body.removeChild(divs[i]);
+            }
+            divs.splice(0, divs.length);
+            blood.innerHTML = 100;
+            startGame();
+            overgame.style.display = "none";
+        }
+
         function reStartGame() {
             rebtn.onclick = function () {
-                current.splice(0, current.length);
-                for (var i = 0; i < divs.length; i++) {
-                    document.body.removeChild(divs[i]);
-                }
-                divs.splice(0, divs.length);
-                blood.innerHTML = 100;
-                startGame();
-                overgame.style.display = "none";
+                restart();
             }
         }
         //
